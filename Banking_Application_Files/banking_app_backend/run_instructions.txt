@@ -1,0 +1,21 @@
+1) Create a Python virtual environment and activate it:
+   python -m venv venv
+   source venv/bin/activate   (Linux/Mac) or venv\Scripts\activate  (Windows)
+
+2) Install requirements:
+   pip install -r requirements.txt
+
+3) Start Account Service (default port 5001):
+   cd account_service
+   python app.py
+
+4) Start Transaction Service (default port 5002):
+   cd transaction_service
+   python app.py
+
+5) API Gateway (optional) - runs on port 5000 and proxies to services:
+   cd api_gateway
+   python app.py
+
+6) The minimal frontend is static (angular_frontend) - open its index.html in browser for demo only.
+   For a full Angular app, scaffold using Angular CLI (ng new) and adapt API endpoints.

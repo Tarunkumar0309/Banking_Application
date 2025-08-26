@@ -1,0 +1,17 @@
+# Register
+curl -X POST http://localhost:5001/auth/register -H 'Content-Type: application/json' -d '{"username":"alice","password":"pass123","name":"Alice"}'
+
+# Login
+curl -X POST http://localhost:5001/auth/login -H 'Content-Type: application/json' -d '{"username":"alice","password":"pass123"}'
+
+# Open account (use token from login)
+# curl -X POST http://localhost:5001/accounts -H 'Authorization: Bearer <TOKEN>' -H 'Content-Type: application/json' -d '{"initial_deposit":1000}'
+
+# Deposit
+curl -X POST http://localhost:5002/transactions/deposit -H 'Content-Type: application/json' -d '{"account_id":1,"amount":200}'
+
+# Withdraw
+curl -X POST http://localhost:5002/transactions/withdraw -H 'Content-Type: application/json' -d '{"account_id":1,"amount":50}'
+
+# Transfer
+curl -X POST http://localhost:5002/transactions/transfer -H 'Content-Type: application/json' -d '{"from_account":1,"to_account":2,"amount":100}'

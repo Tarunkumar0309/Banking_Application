@@ -56,3 +56,4 @@ try {
 Write-Host "🎯 System test complete! Frontend should be accessible at http://localhost:4200" -ForegroundColor Green
 Write-Host "Press any key to continue..." -ForegroundColor Yellow
 $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+

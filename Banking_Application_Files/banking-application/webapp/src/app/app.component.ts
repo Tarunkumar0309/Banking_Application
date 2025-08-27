@@ -20,8 +20,8 @@ import { AuthService } from './core/interceptors/services/auth.services';
 			<!-- Admin Navigation -->
 			<div class="nav-section" *ngIf="isAdmin()">
 				<a routerLink="/admin" class="nav-link">Dashboard</a>
-				<a routerLink="/accounts" class="nav-link">All Accounts</a>
-				<a routerLink="/transactions/history" class="nav-link">All Transactions</a>
+				<a routerLink="/admin/accounts" class="nav-link">All Accounts</a>
+				<a routerLink="/admin/transactions" class="nav-link">All Transactions</a>
 			</div>
 			
 			<!-- User Navigation -->

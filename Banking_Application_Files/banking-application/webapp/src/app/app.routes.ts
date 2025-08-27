@@ -19,8 +19,8 @@ export const routes: Routes = [
   
   // Admin routes
   { path: 'admin', canActivate: [authGuard, adminGuard], loadComponent: () => import('./admin/dashboard.component').then(m => m.AdminDashboardComponent) },
-  { path: 'admin/accounts', canActivate: [authGuard, adminGuard], loadComponent: () => import('./admin/dashboard.component').then(m => m.AdminDashboardComponent) },
-  { path: 'admin/transactions', canActivate: [authGuard, adminGuard], loadComponent: () => import('./admin/dashboard.component').then(m => m.AdminDashboardComponent) },
+  { path: 'admin/accounts', canActivate: [authGuard, adminGuard], loadComponent: () => import('./admin/accounts.component').then(m => m.AdminAccountsComponent) },
+  { path: 'admin/transactions', canActivate: [authGuard, adminGuard], loadComponent: () => import('./admin/transactions.component').then(m => m.AdminTransactionsComponent) },
   
   // Fallback
   { path: '**', redirectTo: 'dashboard' }

@@ -15,9 +15,7 @@ import { TransactionService } from '../core/interceptors/services/transaction.se
         <h2>Admin Dashboard</h2>
         <p class="sub">System-wide overview and management</p>
       </div>
-      <div class="header-actions">
-        <button class="btn" (click)="refreshAll()">Refresh All</button>
-      </div>
+
     </header>
 
     <section class="stats">
@@ -58,15 +56,6 @@ import { TransactionService } from '../core/interceptors/services/transaction.se
           </div>
           <p class="msg" *ngIf="message">{{ message }}</p>
         </div>
-        
-        <div class="quick-card">
-          <h4>System Actions</h4>
-          <div class="actions">
-            <button class="btn small" (click)="exportData()">Export Data</button>
-            <button class="btn small warn" (click)="generateReport()">Generate Report</button>
-            <button class="btn small" (click)="systemHealth()">System Health</button>
-          </div>
-        </div>
       </div>
     </section>
 
@@ -74,7 +63,6 @@ import { TransactionService } from '../core/interceptors/services/transaction.se
       <div class="card">
         <div class="card-head">
           <h3>All System Accounts</h3>
-          <button class="btn ghost" (click)="loadAccounts()">Refresh</button>
         </div>
         <div class="table-wrap">
           <table class="table">
@@ -96,7 +84,6 @@ import { TransactionService } from '../core/interceptors/services/transaction.se
                   <span class="badge" [class.green]="a.status==='ACTIVE'" [class.red]="a.status!=='ACTIVE'">{{ a.status }}</span>
                 </td>
                 <td class="actions-cell">
-                  <button class="btn tiny" (click)="viewAccount(a.account_id)">View</button>
                   <button class="btn tiny danger" (click)="closeAccount(a.account_id)">Close</button>
                 </td>
               </tr>
@@ -111,7 +98,6 @@ import { TransactionService } from '../core/interceptors/services/transaction.se
       <div class="card">
         <div class="card-head">
           <h3>All System Transactions</h3>
-          <button class="btn ghost" (click)="loadTxns()">Refresh</button>
         </div>
         <div class="table-wrap">
           <table class="table">
@@ -122,7 +108,6 @@ import { TransactionService } from '../core/interceptors/services/transaction.se
                 <th>Type</th>
                 <th>Amount</th>
                 <th>Status</th>
-                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -132,14 +117,9 @@ import { TransactionService } from '../core/interceptors/services/transaction.se
                 <td><span class="badge blue">{{ t.type }}</span></td>
                 <td>{{ t.amount | number:'1.2-2' }}</td>
                 <td><span class="badge" [class.green]="t.status==='SUCCESS'" [class.red]="t.status!=='SUCCESS'">{{ t.status }}</span></td>
-                <td class="actions-cell">
-                  <button class="btn tiny" *ngIf="t.type==='DEPOSIT'" (click)="refund(t)">Refund (-)</button>
-                  <button class="btn tiny warn" *ngIf="t.type==='WITHDRAW'" (click)="refund(t)">Refund (+)</button>
-                  <button class="btn tiny" (click)="viewTransaction(t)">View</button>
-                </td>
               </tr>
               <tr *ngIf="!txns().length">
-                <td colspan="6" class="empty">No transactions</td>
+                <td colspan="5" class="empty">No transactions</td>
               </tr>
             </tbody>
           </table>
@@ -150,24 +130,6 @@ import { TransactionService } from '../core/interceptors/services/transaction.se
     <section class="analytics">
       <h3>System Analytics</h3>
       <div class="analytics-grid">
-        <div class="analytics-card">
-          <h4>Transaction Trends</h4>
-          <div class="trend">
-            <div class="trend-item">
-              <span>Deposits Today:</span>
-              <span class="value">{{ todayDeposits() }}</span>
-            </div>
-            <div class="trend-item">
-              <span>Withdrawals Today:</span>
-              <span class="value">{{ todayWithdrawals() }}</span>
-            </div>
-            <div class="trend-item">
-              <span>Transfers Today:</span>
-              <span class="value">{{ todayTransfers() }}</span>
-            </div>
-          </div>
-        </div>
-        
         <div class="analytics-card">
           <h4>Account Status</h4>
           <div class="status-breakdown">
@@ -251,27 +213,6 @@ export class AdminDashboardComponent {
   closedCount = computed(() => this.accounts().filter(a => a.status === 'CLOSED').length);
   suspendedCount = computed(() => this.accounts().filter(a => a.status === 'SUSPENDED').length);
   totalBalance = computed(() => this.accounts().reduce((s, a) => s + Number(a.balance || 0), 0));
-  
-  todayDeposits = computed(() => {
-    const today = new Date().toDateString();
-    return this.txns().filter(t => 
-      t.type === 'DEPOSIT' && new Date(t.timestamp).toDateString() === today
-    ).length;
-  });
-  
-  todayWithdrawals = computed(() => {
-    const today = new Date().toDateString();
-    return this.txns().filter(t => 
-      t.type === 'WITHDRAW' && new Date(t.timestamp).toDateString() === today
-    ).length;
-  });
-  
-  todayTransfers = computed(() => {
-    const today = new Date().toDateString();
-    return this.txns().filter(t => 
-      t.type === 'TRANSFER' && new Date(t.timestamp).toDateString() === today
-    ).length;
-  });
 
   constructor() {
     this.refreshAll();
@@ -360,63 +301,6 @@ export class AdminDashboardComponent {
         console.error('Close account error:', e);
       }
     });
-  }
-
-  refund(t: any) {
-    this.message = 'Processing refund...';
-    
-    // Simple compensating action for DEPOSIT/WITHDRAW
-    if (t.type === 'DEPOSIT') {
-      this.transactionService.withdraw({ account_id: t.account_id, amount: t.amount })
-        .subscribe({ 
-          next: () => { 
-            this.message = 'Refund successful!'; 
-            this.refreshAll(); 
-          },
-          error: (e) => {
-            this.message = 'Error: ' + (e?.error?.error || 'Refund failed');
-            console.error('Refund error:', e);
-          }
-        });
-    } else if (t.type === 'WITHDRAW') {
-      this.transactionService.deposit({ account_id: t.account_id, amount: t.amount })
-        .subscribe({ 
-          next: () => { 
-            this.message = 'Refund successful!'; 
-            this.refreshAll(); 
-          },
-          error: (e) => {
-            this.message = 'Error: ' + (e?.error?.error || 'Refund failed');
-            console.error('Refund error:', e);
-          }
-        });
-    }
-  }
-
-  // Admin-specific actions
-  viewAccount(accountId: number) {
-    this.message = `Viewing account #${accountId}`;
-    // Could navigate to detailed account view
-  }
-
-  viewTransaction(transaction: any) {
-    this.message = `Viewing transaction #${transaction.transaction_id}`;
-    // Could show transaction details modal
-  }
-
-  exportData() {
-    this.message = 'Exporting system data...';
-    // Could implement CSV/PDF export
-  }
-
-  generateReport() {
-    this.message = 'Generating system report...';
-    // Could implement report generation
-  }
-
-  systemHealth() {
-    this.message = 'Checking system health...';
-    // Could implement health check
   }
 }
 

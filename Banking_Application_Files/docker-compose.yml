@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  # Frontend Angular Application
+  frontend:
+    build:
+      context: ./banking-application/webapp
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - api-gateway
+    networks:
+      - banking-network
+    restart: unless-stopped
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: ./banking_app_backend/api_gateway
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - ACCOUNT_SERVICE_URL=http://account-service:5001
+      - TRANSACTION_SERVICE_URL=http://transaction-service:5002
+    depends_on:
+      - account-service
+      - transaction-service
+    networks:
+      - banking-network
+    restart: unless-stopped
+
+  # Account Service
+  account-service:
+    build:
+      context: ./banking_app_backend/account_service
+      dockerfile: Dockerfile
+    ports:
+      - "5001:5001"
+    environment:
+      - DATABASE_PATH=/app/data/accounts.db
+    volumes:
+      - account-data:/app/data
+    networks:
+      - banking-network
+    restart: unless-stopped
+
+  # Transaction Service
+  transaction-service:
+    build:
+      context: ./banking_app_backend/transaction_service
+      dockerfile: Dockerfile
+    ports:
+      - "5002:5002"
+    environment:
+      - DATABASE_PATH=/app/data/transactions.db
+    volumes:
+      - transaction-data:/app/data
+    networks:
+      - banking-network
+    restart: unless-stopped
+
+# Networks
+networks:
+  banking-network:
+    driver: bridge
+
+# Volumes for persistent data
+volumes:
+  account-data:
+    driver: local
+  transaction-data:
+    driver: local
+

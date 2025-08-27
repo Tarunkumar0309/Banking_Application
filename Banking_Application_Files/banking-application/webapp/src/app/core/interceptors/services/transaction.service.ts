@@ -28,7 +28,7 @@ export class TransactionService {
     return this.http.get<Transaction[]>(`${this.baseUrl}/${accountId}`);
   }
 
-  // Get all transactions (admin only)
+  // Admin: get all transactions
   getAllTransactions(): Observable<Transaction[]> {
     return this.http.get<Transaction[]>(`${this.baseUrl}`);
   }
